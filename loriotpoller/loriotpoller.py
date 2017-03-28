@@ -1,38 +1,67 @@
-from conf import *
 import logging
-from websocket import create_connection
+import websocket._exceptions, websocket
 import json
 from sensor_model import sensormessage
-
-connectURL = "wss://eu1.loriot.io/app?id=%s&token=%s" % (loriot_id, loriot_token)
+from loriotpoller.conf import *
 
 def json2loriotMessage(inbound_message):
 	"""
 
 	:param inbound_message: The dict decoded from json.
-	:return: A message object with the
+	:return: A message object with the required fields.
+		If the inbound JS object is not like what we need, it only returns the original python object
 	"""
 	try:
 		if(inbound_message["cmd"] != "rx" or inbound_message["port"] not in watched_ports):
 			return None
 	except KeyError as ex:
-		logging.log(logging.DEBUG, "Unsuccessful LorIoT message parsing: " + inbound_message.__dict__)
+		logging.log(logging.DEBUG, "Unsuccessful LorIoT message parsing: " + inbound_message)
 		return inbound_message
 	# else
 	m = sensormessage.SensorMessage(inbound_message["EUI"], inbound_message["ts"], inbound_message["data"])
 	return m
 
-if __name__ == "__main__":
-	logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
-	while True:
-		ws = create_connection(connectURL)
-		print ("Receiving...")
-		result =  ws.recv()
-		print (result)
-		obj = json.loads(result,
-		                 object_hook=json2loriotMessage)
-		if(obj != None):
-			print(json.dumps(obj.__dict__, cls=sensormessage.FrameTypeJSONEncoder))
-		ws.close()
+class LoriotPoller:
+	"""
+	
+	"""
+	__connectURL__ = None
+	__ws__ = None
 
+	def __init__(self, appid, token) -> None:
+		super().__init__()
+		self.__connectURL__ = "wss://eu1.loriot.io/app?id=%s&token=%s" % (appid, token)
 
+	def connect(self):
+		try:
+			self.__ws__ = websocket.create_connection(self.__connectURL__)
+			logging.log(logging.INFO, "Websocket connected to " + self.__connectURL__)
+		except websocket._exceptions.WebSocketException as ex:
+			# TODO: Correctly handle the correct exception
+			pass
+
+	def close(self):
+		self.__ws__.close()
+		logging.log(logging.INFO, "Websocket connection closed to " + self.__connectURL__)
+
+	def isConnected(self):
+		if(type(self.__ws__) is websocket.WebSocket):
+			return self.__ws__.connected
+		else:
+			return False
+
+	def recv(self):
+		"""
+		
+		:return: 
+		"""
+		if(self.isConnected() == False):
+			raise ConnectionError("You are not connected to the server")
+		logging.log(logging.DEBUG, "Receiving...")
+		result = self.__ws__.recv()
+		logging.log(logging.DEBUG, "Received: " + result)
+		result = json.loads(result, object_hook=json2loriotMessage)
+		if(type(result) is sensormessage.SensorMessage):
+			return result
+		else:
+			return None
