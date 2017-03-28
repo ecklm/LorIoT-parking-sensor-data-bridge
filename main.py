@@ -10,7 +10,7 @@ import json
 
 logging.basicConfig(filename="", level=logging.DEBUG, format="%(asctime)s - %(levelname)s: %(message)s")
 
-lpoller = LoriotPoller(loriot_id, loriot_token)
+lpoller = LoriotPoller(loriot_id, loriot_token, loriot_watched_ports)
 aws_publisher = AWSPublisher("parkingSensor", aws_host, aws_root_CA_path, aws_certificate_path, aws_private_key_path, aws_topic)
 aws_publisher.connect()
 

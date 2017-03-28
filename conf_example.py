@@ -6,6 +6,7 @@
 # LorIoT parameters
 loriot_id = "" # AppID
 loriot_token = "" # Token to the service
+loriot_watched_ports = [] # List of port numbers to be watched
 
 # AWS parameters
 aws_host = "" # Host path provided by the AWS IoT platform thing inventory
