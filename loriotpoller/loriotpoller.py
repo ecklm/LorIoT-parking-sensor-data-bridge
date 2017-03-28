@@ -15,7 +15,7 @@ def json2loriotMessage(inbound_message):
 		if(inbound_message["cmd"] != "rx" or inbound_message["port"] not in watched_ports):
 			return None
 	except KeyError as ex:
-		logging.log(logging.DEBUG, "Unsuccessful LorIoT message parsing: " + inbound_message)
+		logging.debug("Unsuccessful LorIoT message parsing: " + inbound_message)
 		return inbound_message
 	# else
 	m = sensormessage.SensorMessage(inbound_message["EUI"], inbound_message["ts"], inbound_message["data"])
@@ -35,14 +35,14 @@ class LoriotPoller:
 	def connect(self):
 		try:
 			self.__ws__ = websocket.create_connection(self.__connectURL__)
-			logging.log(logging.INFO, "Websocket connected to " + self.__connectURL__)
+			logging.info("Websocket connected to " + self.__connectURL__)
 		except websocket._exceptions.WebSocketException as ex:
 			# TODO: Correctly handle the correct exception
 			pass
 
 	def close(self):
 		self.__ws__.close()
-		logging.log(logging.INFO, "Websocket connection closed to " + self.__connectURL__)
+		logging.info("Websocket connection closed to " + self.__connectURL__)
 
 	def isConnected(self):
 		if(type(self.__ws__) is websocket.WebSocket):
@@ -57,9 +57,9 @@ class LoriotPoller:
 		"""
 		if(self.isConnected() == False):
 			raise ConnectionError("You are not connected to the server")
-		logging.log(logging.DEBUG, "Receiving...")
+		logging.debug("Receiving...")
 		result = self.__ws__.recv()
-		logging.log(logging.DEBUG, "Received: " + result)
+		logging.debug("Received: " + result)
 		result = json.loads(result, object_hook=json2loriotMessage)
 		if(type(result) is sensormessage.SensorMessage):
 			return result
