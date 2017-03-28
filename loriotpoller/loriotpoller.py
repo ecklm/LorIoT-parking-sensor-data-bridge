@@ -2,12 +2,12 @@ import logging
 import websocket._exceptions, websocket
 import json
 from sensor_model import sensormessage
-from loriotpoller.conf import *
+from loriotpoller.conf import * # TODO: make clear the origin of watched ports
 
 def json2loriotMessage(inbound_message):
 	"""
 
-	:param inbound_message: The dict decoded from json.
+	:param dict inbound_message: The dict decoded from json.
 	:return: A message object with the required fields.
 		If the inbound JS object is not like what we need, it only returns the original python object
 	"""
