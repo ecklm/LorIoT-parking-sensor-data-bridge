@@ -8,7 +8,15 @@ import json
 
 # TODO: argparse
 
-logging.basicConfig(filename="", level=logging.DEBUG, format="%(asctime)s - %(levelname)s: %(message)s")
+log_level = logging.DEBUG
+log_file = ""
+log_format = "%(levelname)s: %(message)s"
+if(log_level == logging.DEBUG):
+	log_format = "%(name)s - "+ log_format
+if(len(log_file) == 0): # Messages goes to STDERR
+	log_format = "%(asctime)s - " + log_format
+
+logging.basicConfig(filename=log_file, level=log_level, format=log_format)
 
 lpoller = LoriotPoller(loriot_id, loriot_token, loriot_watched_ports)
 aws_publisher = AWSPublisher("parkingSensor", aws_host, aws_root_CA_path, aws_certificate_path, aws_private_key_path, aws_topic)
