@@ -18,6 +18,16 @@ if(len(log_file) == 0): # Messages goes to STDERR
 
 logging.basicConfig(filename=log_file, level=log_level, format=log_format)
 
+
+try:
+	from setproctitle import setproctitle
+	proc_name = "loriot-data-bridge"
+	setproctitle(proc_name)
+	logging.debug("Process name is set to " + "loriot-data-bridge")
+except (ModuleNotFoundError, ImportError):
+	logging.error("setproctitle module is not installed")
+	pass
+
 lpoller = LoriotPoller(loriot_id, loriot_token, loriot_watched_ports)
 aws_publisher = AWSPublisher("parkingSensor", aws_host, aws_root_CA_path, aws_certificate_path, aws_private_key_path, aws_topic)
 aws_publisher.connect()
