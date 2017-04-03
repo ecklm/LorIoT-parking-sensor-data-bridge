@@ -1,6 +1,6 @@
 import logging
 
-from loriotpoller.loriotpoller import LoriotPoller
+from poller.loriotpoller import LoriotPoller
 from conf import *
 from sensor_model import sensormessage
 from publisher.awspublisher.AWSPublisher import AWSPublisher

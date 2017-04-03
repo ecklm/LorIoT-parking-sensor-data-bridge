@@ -1,9 +1,12 @@
 import logging
+from builtins import bool
+
 import websocket._exceptions, websocket
 import json
 from sensor_model import sensormessage
+from poller.poller import Poller
 
-class LoriotPoller:
+class LoriotPoller(Poller):
 	"""
 	
 	"""
@@ -23,7 +26,7 @@ class LoriotPoller:
 		self.__connectURL__ = "wss://eu1.loriot.io/app?id=%s&token=%s" % (appid, token)
 		self.__watched_ports__ = watched_ports
 
-	def connect(self):
+	def connect(self) -> None:
 		try:
 			self.__ws__ = websocket.create_connection(self.__connectURL__)
 			logging.info("Websocket connected to " + self.__connectURL__)
@@ -31,17 +34,17 @@ class LoriotPoller:
 			# TODO: Correctly handle the correct exception
 			logging.error(ex)
 
-	def close(self):
+	def close(self) -> None:
 		self.__ws__.close()
 		logging.info("Websocket connection closed to " + self.__connectURL__)
 
-	def isConnected(self):
+	def isConnected(self) -> bool:
 		if(type(self.__ws__) is websocket.WebSocket):
 			return self.__ws__.connected
 		else:
 			return False
 
-	def recv(self):
+	def recv(self) -> sensormessage.SensorMessage or None:
 		"""
 		
 		:return: 
