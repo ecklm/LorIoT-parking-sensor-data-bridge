@@ -35,7 +35,7 @@ aws_publisher.connect()
 lpoller.connect()
 msg = lpoller.recv()
 if(type(msg) == sensormessage.SensorMessage):
-	print(vars(msg))
+	logging.debug(vars(msg))
 	aws_publisher.publish(json.dumps(vars(msg), cls=sensormessage.FrameTypeJSONEncoder))
 
 lpoller.close()

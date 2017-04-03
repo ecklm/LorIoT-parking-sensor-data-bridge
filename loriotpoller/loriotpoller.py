@@ -29,7 +29,7 @@ class LoriotPoller:
 			logging.info("Websocket connected to " + self.__connectURL__)
 		except websocket._exceptions.WebSocketException as ex:
 			# TODO: Correctly handle the correct exception
-			pass
+			logging.error(ex)
 
 	def close(self):
 		self.__ws__.close()
