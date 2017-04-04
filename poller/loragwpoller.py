@@ -2,6 +2,8 @@ from poller.poller import Poller
 import logging
 import paho.mqtt.client
 from sensor_model import sensormessage
+from queue import Queue
+import json
 
 class LoragwPoller(Poller):
 	"""
@@ -13,6 +15,7 @@ class LoragwPoller(Poller):
 	__passwd__ = None
 	__listening_topics__ = None
 	__watched_ports__ = None
+	__message_queue__ = Queue()
 
 	__mqtt_client__ = None
 
@@ -46,9 +49,37 @@ class LoragwPoller(Poller):
 		# It is cool because it automatically resubscribes on reconnect
 		self.__subscribeToTopics()
 
+	def __json2loriotMessage(self, inbound_message) -> sensormessage.SensorMessage or dict:
+		"""
+
+		:param dict inbound_message: The dict decoded from json.
+		:return: A message object with the required fields.
+			If the inbound JS object is not like what we need, it only returns the original python object
+		"""
+		try:
+			if (inbound_message["port"] not in self.__watched_ports__):
+				return None
+		except KeyError as ex:
+			logging.debug("Unsuccessful LoraGW message parsing: " + str(inbound_message))
+			return inbound_message
+		# else
+		m = sensormessage.SensorMessage(inbound_message["EUI"], inbound_message["timestamp"], inbound_message["raw"])
+		return m
+
 	def __on_message(self, client, userdata, msg):
-		# TODO: parse the message
-		print(msg.topic + " " + str(msg.payload))
+#		if (self.isConnected() == False):
+#			raise ConnectionError("You are not connected to the server")
+		result = json.loads(msg.payload)
+		eui = msg.topic.split("/")[1].replace("-","")
+		result["EUI"] = eui
+		msg.payload = json.dumps(result)
+		print("Received: " + str(msg.payload))
+
+		result = json.loads(msg.payload, object_hook=self.__json2loriotMessage)
+		if (type(result) is sensormessage.SensorMessage):
+			self.__message_queue__.put(result)
+		else:
+			return None
 
 	def __on_subscribe(self, client, userdata, mid, granted_qos):
 		# does not reveal anything interesting for me...
@@ -68,11 +99,11 @@ class LoragwPoller(Poller):
 		"""
 		Connets to the platform with the configured credentials.
 
-		:return: True if the connect attempt succeeded False if it failed
+		:return: The MQTT connection state code
 		"""
 
 		ret = self.__mqtt_client__.connect(self.__host__, self.__port__)
-		self.__mqtt_client__.loop_forever()
+		self.__mqtt_client__.loop_forever() # blocking
 		return ret
 
 	def close(self) -> bool:
@@ -84,4 +115,7 @@ class LoragwPoller(Poller):
 		return self.__mqtt_client__.disconnect()
 
 	def recv(self) -> sensormessage.SensorMessage or None:
-		raise NotImplementedError
+		try:
+			self.__message_queue__.get(block=False)
+		except:
+			return None

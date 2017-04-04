@@ -1,6 +1,6 @@
 import logging
 
-from poller.loriotpoller import LoriotPoller
+from poller.loragwpoller import LoragwPoller
 from conf import *
 from sensor_model import sensormessage
 from publisher.awspublisher.AWSPublisher import AWSPublisher
@@ -28,7 +28,7 @@ except (ModuleNotFoundError, ImportError):
 	logging.error("setproctitle module is not installed")
 	pass
 
-lpoller = LoriotPoller(loriot_id, loriot_token, loriot_watched_ports)
+lpoller = LoragwPoller(loragw_host, loragw_port, loragw_user, loragw_passwd, loragw_topics, loragw_watched_ports)
 aws_publisher = AWSPublisher("parkingSensor", aws_host, aws_root_CA_path, aws_certificate_path, aws_private_key_path, aws_topic)
 aws_publisher.connect()
 
