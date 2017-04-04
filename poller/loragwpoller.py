@@ -14,6 +14,8 @@ class LoragwPoller(Poller):
 	__listening_topics__ = None
 	__watched_ports__ = None
 
+	__connected__ = False
+
 	__mqtt_client__ = None
 
 	def __init__(self, host, port, user, passwd, topics, watched_ports) -> None:
@@ -36,6 +38,7 @@ class LoragwPoller(Poller):
 		self.__mqtt_client__ = paho.mqtt.client.Client()
 		self.__mqtt_client__.username_pw_set(self.__username__, self.__passwd__)
 		self.__mqtt_client__.on_connect = self.__on_connect
+		self.__mqtt_client__.on_disconnect = self.__on_disconnect
 		self.__mqtt_client__.on_message = self.__on_message
 		self.__mqtt_client__.on_subscribe = self.__on_subscribe
 		self.__mqtt_client__.on_log = self.__on_log
@@ -44,7 +47,11 @@ class LoragwPoller(Poller):
 		logging.info("%s: %s" % (client._client_id, "Connected with result code "+str(rc)))
 		# Subscribe to topics
 		# It is cool because it automatically resubscribes on reconnect
+		self.__connected__ = True
 		self.__subscribeToTopics()
+
+	def __on_disconnect(self, client, userdata, rc):
+		self.__connected__ = False
 
 	def __on_message(self, client, userdata, msg):
 		# TODO: parse the message
@@ -74,6 +81,9 @@ class LoragwPoller(Poller):
 		ret = self.__mqtt_client__.connect(self.__host__, self.__port__)
 		self.__mqtt_client__.loop_forever()
 		return ret
+
+	def isConnected(self) -> bool:
+		return self.__connected__
 
 	def close(self) -> bool:
 		"""
