@@ -73,7 +73,7 @@ class LoragwPoller(Poller):
 		eui = msg.topic.split("/")[1].replace("-","")
 		result["EUI"] = eui
 		msg.payload = json.dumps(result)
-		print("Received: " + str(msg.payload))
+		logging.debug("Received: " + str(msg.payload))
 
 		result = json.loads(msg.payload, object_hook=self.__json2loriotMessage)
 		if (type(result) is sensormessage.SensorMessage):
@@ -103,7 +103,7 @@ class LoragwPoller(Poller):
 		"""
 
 		ret = self.__mqtt_client__.connect(self.__host__, self.__port__)
-		self.__mqtt_client__.loop_forever() # blocking
+		self.__mqtt_client__.loop_start()
 		return ret
 
 	def close(self) -> bool:
@@ -112,10 +112,12 @@ class LoragwPoller(Poller):
 
 		:return: True if the disconnect request was successful. False otherwise.		
 		"""
+		self.__mqtt_client__.loop_stop()
 		return self.__mqtt_client__.disconnect()
 
 	def recv(self) -> sensormessage.SensorMessage or None:
 		try:
-			self.__message_queue__.get(block=False)
+			return self.__message_queue__.get(block=False)
 		except:
+			logging.debug("LoraGW receiving message queue is empty.")
 			return None

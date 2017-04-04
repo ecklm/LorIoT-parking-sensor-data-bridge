@@ -1,4 +1,5 @@
 import logging
+import time
 
 from poller.loragwpoller import LoragwPoller
 from conf import *
@@ -33,10 +34,18 @@ aws_publisher = AWSPublisher("parkingSensor", aws_host, aws_root_CA_path, aws_ce
 aws_publisher.connect()
 
 lpoller.connect()
-msg = lpoller.recv()
-if(type(msg) == sensormessage.SensorMessage):
-	logging.debug(vars(msg))
-	aws_publisher.publish(json.dumps(vars(msg), cls=sensormessage.FrameTypeJSONEncoder))
+
+stop = False
+while stop == False:
+	try:
+		msg = lpoller.recv()
+		if(type(msg) == sensormessage.SensorMessage):
+			logging.debug(vars(msg))
+			aws_publisher.publish(json.dumps(vars(msg), cls=sensormessage.FrameTypeJSONEncoder))
+		else:
+			time.sleep(5)
+	except KeyboardInterrupt:
+		stop = True
 
 lpoller.close()
 aws_publisher.disconnect()

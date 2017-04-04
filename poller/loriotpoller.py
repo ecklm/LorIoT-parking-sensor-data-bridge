@@ -6,6 +6,7 @@ import json
 from sensor_model import sensormessage
 from poller.poller import Poller
 
+# TODO: Implement functionlity like in LoragwPoller (threading, queuing)
 class LoriotPoller(Poller):
 	"""
 	
