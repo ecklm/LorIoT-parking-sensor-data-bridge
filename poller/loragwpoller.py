@@ -2,8 +2,9 @@ from poller.poller import Poller
 import logging
 import paho.mqtt.client
 from sensor_model import sensormessage
-from queue import Queue
+from queue import Queue, Empty
 import json
+
 
 class LoragwPoller(Poller):
 	"""
@@ -128,6 +129,9 @@ class LoragwPoller(Poller):
 	def recv(self) -> sensormessage.SensorMessage or None:
 		try:
 			return self.__message_queue__.get(block=False)
-		except:
+		except Empty:
 			logging.debug("LoraGW receiving message queue is empty.")
+			return None
+		except ... as ex:
+			logging.error(vars(ex))
 			return None
