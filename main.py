@@ -8,7 +8,6 @@ from sensor_model import sensormessage
 from publisher.awspublisher.AWSPublisher import AWSPublisher
 import json
 
-# TODO: argparse
 parser = argparse.ArgumentParser(
 		description="Polls given sensor sources, and uploads the data to the given IoT platforms")
 parser.add_argument("-d", "--debug", action="store_true",
