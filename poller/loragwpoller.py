@@ -78,7 +78,7 @@ class LoragwPoller(Poller):
 		if (self.isConnected() == False):
 			raise ConnectionError("You are not connected to the server")
 		result = json.loads(msg.payload)
-		eui = msg.topic.split("/")[1].replace("-","")
+		eui = msg.topic.split("/")[1]
 		result["EUI"] = eui
 		msg.payload = json.dumps(result)
 		logging.debug("Received: " + str(msg.payload))
