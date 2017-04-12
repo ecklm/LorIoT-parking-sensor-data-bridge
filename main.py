@@ -1,5 +1,6 @@
 import logging
 import time
+import argparse
 
 from poller.loragwpoller import LoragwPoller
 from conf import *
@@ -8,10 +9,26 @@ from publisher.awspublisher.AWSPublisher import AWSPublisher
 import json
 
 # TODO: argparse
+parser = argparse.ArgumentParser(
+		description="Polls given sensor sources, and uploads the data to the given IoT platforms")
+parser.add_argument("-d", "--debug", action="store_true",
+                    help="Prints debug messages.")
+parser.add_argument("-f", "--log-file", action="store",
+                    help="Log file to witch log messages should be writen")
 
-log_level = logging.DEBUG
-log_file = ""
+args = parser.parse_args()
+if(args.debug == True):
+	log_level = logging.DEBUG
+else:
+	log_level = logging.INFO
+
+if(args.log_file != None):
+	log_file = args.log_file
+else:
+	log_file = ""
+
 log_format = "%(levelname)s: %(message)s"
+
 if(log_level == logging.DEBUG):
 	log_format = "%(name)s - "+ log_format
 if(len(log_file) == 0): # Messages goes to STDERR
