@@ -22,3 +22,10 @@ loragw_user = "" # Username
 loragw_passwd = "" # Password
 loragw_topics = [] # List of topics to subscribe
 loragw_watched_ports = [] # List of port numbers to be watched
+
+# SensorHUB parameters
+sensorhub_host = "" # Host to connect to
+sensorhub_port = 0 # Port used to the connection
+sensorhub_user = "" # Username
+sensorhub_passwd = "" # Password
+sensorhub_topic = "" # MQTT topic to publish to

@@ -1,7 +1,10 @@
 import logging
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
-class AWSPublisher:
+from publisher.publisher import Publisher
+
+
+class AWSPublisher(Publisher):
 	"""
 	
 	"""
