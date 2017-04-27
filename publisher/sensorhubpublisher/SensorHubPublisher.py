@@ -55,8 +55,10 @@ class SensorHUBPublisher(Publisher):
 		return ret.is_published()
 
 	def disconnect(self) -> bool:
+		self.__mqtt_client__.loop_stop()
 		return self.__mqtt_client__.disconnect()
 
 	def connect(self) -> bool:
 		ret = self.__mqtt_client__.connect(self.__host__, self.__port__)
+		self.__mqtt_client__.loop_start()
 		return ret
