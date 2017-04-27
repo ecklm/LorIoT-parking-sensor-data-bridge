@@ -130,7 +130,6 @@ class LoragwPoller(Poller):
 		try:
 			return self.__message_queue__.get(block=False)
 		except Empty:
-			logging.debug("LoraGW receiving message queue is empty.")
 			return None
 		except ... as ex:
 			logging.error(vars(ex))

@@ -59,7 +59,7 @@ while stop == False:
 	try:
 		msg = lpoller.recv()
 		if(type(msg) == sensormessage.SensorMessage):
-			logging.debug(vars(msg))
+			logging.debug("Received and parsed data: " + str(vars(msg)))
 			msg = json.dumps(vars(msg), cls=sensormessage.FrameTypeJSONEncoder)
 			aws_publisher.publish(msg)
 			sensorhub_publisher.publish(msg)

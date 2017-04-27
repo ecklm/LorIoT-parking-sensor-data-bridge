@@ -70,5 +70,5 @@ class AWSPublisher(Publisher):
 		:param str message: JSON payload to publish
 		:return bool: Whether the publish request have been successful
 		"""
-		logging.info("Message is being requested to publish: " + message)
+		logging.debug("Message is being requested to publish: " + message)
 		return self.__mqtt_client__.publish(self.__publish_topic__, message, 1)

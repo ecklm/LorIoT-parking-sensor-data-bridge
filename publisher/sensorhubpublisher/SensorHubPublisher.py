@@ -47,7 +47,7 @@ class SensorHUBPublisher(Publisher):
 		self.__connected__ = False
 
 	def publish(self, message) -> bool:
-		logging.info("Message is being requested to publish: " + message)
+		logging.debug("Message is being requested to publish: " + message)
 		ret = self.__mqtt_client__.publish(self.__publishing_topic__, message)
 		ret.wait_for_publish()
 		if(ret.is_published() == False):
