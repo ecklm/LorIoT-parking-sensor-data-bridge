@@ -6,6 +6,7 @@ from poller.loragwpoller import LoragwPoller
 from conf import *
 from sensor_model import sensormessage
 from publisher.awspublisher.AWSPublisher import AWSPublisher
+from publisher.sensorhubpublisher.SensorHubPublisher import SensorHUBPublisher
 import json
 
 parser = argparse.ArgumentParser(
@@ -46,10 +47,12 @@ except (ModuleNotFoundError, ImportError):
 	pass
 
 lpoller = LoragwPoller(loragw_host, loragw_port, loragw_user, loragw_passwd, loragw_topics, loragw_watched_ports)
+lpoller.connect()
+
 aws_publisher = AWSPublisher("parkingSensor", aws_host, aws_root_CA_path, aws_certificate_path, aws_private_key_path, aws_topic)
 aws_publisher.connect()
-
-lpoller.connect()
+sensorhub_publisher = SensorHUBPublisher(sensorhub_host, sensorhub_port, sensorhub_user, sensorhub_passwd, sensorhub_topic)
+sensorhub_publisher.connect()
 
 stop = False
 while stop == False:
@@ -57,11 +60,15 @@ while stop == False:
 		msg = lpoller.recv()
 		if(type(msg) == sensormessage.SensorMessage):
 			logging.debug(vars(msg))
-			aws_publisher.publish(json.dumps(vars(msg), cls=sensormessage.FrameTypeJSONEncoder))
+			msg = json.dumps(vars(msg), cls=sensormessage.FrameTypeJSONEncoder)
+			aws_publisher.publish(msg)
+			sensorhub_publisher.publish(msg)
 		else:
 			time.sleep(5)
 	except KeyboardInterrupt:
 		stop = True
 
-lpoller.close()
+sensorhub_publisher.disconnect()
 aws_publisher.disconnect()
+
+lpoller.close()
