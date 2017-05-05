@@ -1,10 +1,9 @@
-from poller.poller import Poller
+from poller.poller import Poller, chunkMilliseconds
 import logging
 import paho.mqtt.client
 from sensor_model import sensormessage
 from queue import Queue, Empty
 import json
-
 
 class LoragwPoller(Poller):
 	"""
@@ -71,7 +70,7 @@ class LoragwPoller(Poller):
 			logging.debug("Unsuccessful LoraGW message parsing: " + str(inbound_message))
 			return inbound_message
 		# else
-		m = sensormessage.SensorMessage(inbound_message["EUI"], inbound_message["timestamp"], inbound_message["raw"])
+		m = sensormessage.SensorMessage(inbound_message["EUI"], chunkMilliseconds(inbound_message["timestamp"]), inbound_message["raw"])
 		return m
 
 	def __on_message(self, client, userdata, msg):

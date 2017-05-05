@@ -1,5 +1,13 @@
 from sensor_model import sensormessage
 
+def chunkMilliseconds(ts):
+	"""
+	Gets a timestamp in the format of 2017-10-01T12:05:00.0000Z and converts it to timestamp like this2017-10-01T12:05:00Z
+	:param (str) ts: 
+	:return: 
+	"""
+	return ts[:ts.find(".")] + ts[ts.find("Z"):len(ts)]
+
 class Poller:
 	def connect(self) -> None:
 		pass
